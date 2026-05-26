@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIプロジェクトの最前線</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --navy:    #0f2044;
+    --navy-mid: #1a3260;
+    --blue:    #1565c0;
+    --blue-light: #1976d2;
+    --blue-pale: #e3edf8;
+    --accent:  #0288d1;
+    --teal:    #00838f;
+    --white:   #ffffff;
+    --off-white: #f7f9fc;
+    --gray-100: #f0f4f8;
+    --gray-200: #e2e8f0;
+    --gray-400: #94a3b8;
+    --gray-600: #475569;
+    --gray-800: #1e293b;
+    --red:     #c62828;
+  }
+
+  body {
+    font-family: 'Inter', 'Helvetica Neue', 'Noto Sans JP', Arial, sans-serif;
+    background: #e8ecf0;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  /* ── Slide base ── */
+  .slide {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: var(--white);
+    overflow: hidden;
+  }
+  .slide.active { display: flex; flex-direction: column; }
+
+  /* Top rule */
+  .top-rule {
+    width: 100%;
+    height: 5px;
+    background: var(--navy);
+    flex-shrink: 0;
+  }
+  .top-rule.blue { background: linear-gradient(90deg, var(--navy) 60%, var(--blue) 100%); }
+
+  /* Slide inner padding */
+  .slide-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 52px 80px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Bottom logo strip */
+  .slide-footer {
+    height: 36px;
+    background: var(--navy);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 80px;
+    flex-shrink: 0;
+  }
+  .footer-brand {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+  .footer-num {
+    font-size: 10px;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 1px;
+  }
+
+  /* ── Typography ── */
+  .label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 14px;
+  }
+
+  .slide-title {
+    font-size: 40px;
+    font-weight: 800;
+    color: var(--navy);
+    line-height: 1.15;
+    letter-spacing: -0.5px;
+    margin-bottom: 6px;
+  }
+
+  .slide-sub {
+    font-size: 16px;
+    color: var(--gray-600);
+    font-weight: 400;
+    margin-bottom: 36px;
+    letter-spacing: 0.3px;
+  }
+
+  .big-msg {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--navy);
+    border-left: 4px solid var(--blue);
+    padding: 14px 20px;
+    background: var(--blue-pale);
+    border-radius: 0 6px 6px 0;
+    margin-top: 28px;
+    line-height: 1.5;
+  }
+
+  /* ── Grids ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; }
+
+  /* ── Cards ── */
+  .card {
+    border: 1.5px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 24px;
+    background: var(--white);
+    position: relative;
+  }
+  .card-top-navy { border-top: 3px solid var(--navy); }
+  .card-top-blue  { border-top: 3px solid var(--blue); }
+  .card-top-teal  { border-top: 3px solid var(--teal); }
+  .card-top-red   { border-top: 3px solid var(--red); }
+
+  .card-num {
+    font-size: 44px;
+    font-weight: 900;
+    color: var(--blue);
+    line-height: 1;
+    margin-bottom: 8px;
+    font-variant-numeric: tabular-nums;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 8px;
+    letter-spacing: 0.3px;
+  }
+  .card-body {
+    font-size: 13px;
+    color: var(--gray-600);
+    line-height: 1.7;
+  }
+
+  /* ── List ── */
+  .arrow-list { list-style: none; }
+  .arrow-list li {
+    padding: 10px 0 10px 22px;
+    position: relative;
+    color: var(--gray-800);
+    font-size: 16px;
+    line-height: 1.5;
+    border-bottom: 1px solid var(--gray-200);
+  }
+  .arrow-list li:last-child { border-bottom: none; }
+  .arrow-list li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--blue);
+    font-weight: 700;
+  }
+
+  /* ── Highlight box ── */
+  .hl-box {
+    background: var(--navy);
+    border-radius: 8px;
+    padding: 22px 28px;
+    color: white;
+  }
+  .hl-box .hl-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .hl-box .hl-text {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.4;
+  }
+
+  .info-box {
+    background: var(--blue-pale);
+    border: 1.5px solid #90caf9;
+    border-radius: 8px;
+    padding: 18px 24px;
+  }
+  .info-box .ib-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--blue);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .info-box .ib-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--navy);
+    line-height: 1.5;
+  }
+
+  .warn-box {
+    background: #fff3e0;
+    border: 1.5px solid #ffb74d;
+    border-left: 4px solid #f57c00;
+    border-radius: 0 8px 8px 0;
+    padding: 16px 20px;
+  }
+  .warn-box .wb-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #e65100;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .warn-box .wb-text {
+    font-size: 15px;
+    color: #5d4037;
+    line-height: 1.6;
+  }
+
+  /* ── Flow ── */
+  .flow {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+  }
+  .flow-item {
+    flex: 1;
+    background: var(--gray-100);
+    border: 1.5px solid var(--gray-200);
+    border-radius: 6px;
+    padding: 18px 16px;
+    text-align: center;
+  }
+  .flow-item .f-step {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--blue);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .flow-item .f-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--navy);
+    line-height: 1.3;
+  }
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    color: var(--blue);
+    font-size: 18px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  /* ── VS layout ── */
+  .vs-wrap {
+    display: grid;
+    grid-template-columns: 1fr 48px 1fr;
+    gap: 0;
+    align-items: start;
+  }
+  .vs-mid {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--gray-400);
+    padding-top: 32px;
+  }
+  .vs-list { list-style: none; }
+  .vs-list li {
+    padding: 9px 0 9px 16px;
+    position: relative;
+    font-size: 14px;
+    color: var(--gray-800);
+    border-bottom: 1px solid var(--gray-200);
+    line-height: 1.4;
+  }
+  .vs-list li:last-child { border-bottom: none; }
+  .vs-list.navy li::before { content: '•'; position: absolute; left: 0; color: var(--navy); }
+  .vs-list.blue li::before { content: '•'; position: absolute; left: 0; color: var(--blue); }
+
+  /* ── Stats ── */
+  .stat-row { display: flex; gap: 48px; }
+  .stat-num  { font-size: 52px; font-weight: 900; color: var(--navy); line-height: 1; }
+  .stat-unit { font-size: 18px; font-weight: 700; color: var(--blue); }
+  .stat-lbl  { font-size: 12px; color: var(--gray-600); margin-top: 4px; letter-spacing: 0.5px; }
+
+  /* ── Timeline ── */
+  .timeline { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .tl-item { position: relative; padding-top: 40px; }
+  .tl-dot {
+    position: absolute;
+    top: 0; left: 0;
+    width: 28px; height: 28px;
+    background: var(--navy);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 800; color: white;
+  }
+  .tl-line {
+    position: absolute;
+    top: 13px; left: 28px;
+    width: calc(100% - 28px);
+    height: 2px;
+    background: var(--gray-200);
+  }
+  .tl-month  { font-size: 10px; letter-spacing: 2px; color: var(--blue); font-weight: 700; text-transform: uppercase; margin-bottom: 6px; }
+  .tl-text   { font-size: 16px; font-weight: 700; color: var(--navy); line-height: 1.3; }
+  .tl-sub    { font-size: 12px; color: var(--gray-600); margin-top: 6px; line-height: 1.5; }
+
+  /* ── Badge ── */
+  .badge-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .badge {
+    border: 1.5px solid var(--gray-200);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 12px;
+    color: var(--gray-600);
+    font-weight: 500;
+    background: var(--white);
+  }
+  .badge.filled {
+    background: var(--navy);
+    color: white;
+    border-color: var(--navy);
+    font-weight: 600;
+  }
+
+  /* ── Divider line ── */
+  .divider { width: 48px; height: 3px; background: var(--blue); margin: 16px 0; }
+
+  /* ── SVG Icons ── */
+  .icon { width: 36px; height: 36px; margin-bottom: 12px; }
+
+  /* ─────────────── TITLE SLIDE ─────────────── */
+  .title-slide {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: var(--navy);
+    flex-direction: column;
+  }
+  .title-slide.active { display: flex; }
+
+  .title-top-stripe {
+    width: 100%; height: 5px;
+    background: linear-gradient(90deg, var(--blue) 0%, var(--teal) 100%);
+    flex-shrink: 0;
+  }
+
+  .title-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px 100px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Geometric accent */
+  .title-body::before {
+    content: '';
+    position: absolute;
+    right: -60px; top: -60px;
+    width: 420px; height: 420px;
+    border: 1.5px solid rgba(255,255,255,0.06);
+    border-radius: 50%;
+  }
+  .title-body::after {
+    content: '';
+    position: absolute;
+    right: 60px; top: 60px;
+    width: 300px; height: 300px;
+    border: 1.5px solid rgba(255,255,255,0.04);
+    border-radius: 50%;
+  }
+
+  .title-label {
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: rgba(255,255,255,0.45);
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 28px;
+  }
+
+  .title-h1 {
+    font-size: 64px;
+    font-weight: 900;
+    color: white;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    margin-bottom: 20px;
+  }
+  .title-h1 em { color: #64b5f6; font-style: normal; }
+
+  .title-divider { width: 64px; height: 3px; background: var(--blue); margin: 24px 0; }
+
+  .title-sub {
+    font-size: 18px;
+    color: rgba(255,255,255,0.6);
+    font-weight: 300;
+    letter-spacing: 1px;
+    margin-bottom: 48px;
+  }
+
+  .title-meta {
+    display: flex;
+    gap: 32px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 1px;
+  }
+  .title-meta-dot { width: 3px; height: 3px; background: var(--blue); border-radius: 50%; margin-top: 6px; }
+
+  .title-footer {
+    height: 36px;
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    padding: 0 100px;
+    flex-shrink: 0;
+  }
+  .title-footer span {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.25);
+    text-transform: uppercase;
+  }
+
+  /* ─── Section break slide ─── */
+  .section-slide-inner {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 60px 80px;
+    background: var(--off-white);
+  }
+
+  /* ─── Closing slide ─── */
+  .closing-inner {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 60px 100px;
+    background: var(--off-white);
+  }
+
+  /* ── Navigation ── */
+  .nav {
+    position: fixed;
+    bottom: 24px; right: 32px;
+    display: flex; align-items: center; gap: 12px;
+    z-index: 100;
+  }
+  .nav-btn {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--navy);
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .nav-btn:hover { background: var(--blue); }
+  .nav-count { font-size: 11px; color: var(--gray-600); letter-spacing: 1px; min-width: 50px; text-align: center; }
+
+  .kbd-hint {
+    position: fixed;
+    bottom: 24px; left: 32px;
+    font-size: 10px;
+    color: var(--gray-400);
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 1 — TITLE
+══════════════════════════════════════════ -->
+<div class="slide title-slide active" id="slide-1">
+  <div class="title-top-stripe"></div>
+  <div class="title-body">
+    <div class="title-label">BayCurrent Consulting — AI Project</div>
+    <h1 class="title-h1">AIプロジェクトの<br><em>最前線</em></h1>
+    <div class="title-divider"></div>
+    <p class="title-sub">数百億規模の意思決定を動かした 3ヶ月の記録</p>
+    <div class="title-meta">
+      <span>PM / コンサルタント視点</span>
+      <div class="title-meta-dot"></div>
+      <span>2025</span>
+      <div class="title-meta-dot"></div>
+      <span>20 Slides</span>
+    </div>
+  </div>
+  <div class="title-footer"><span>Confidential — For Internal Use Only</span></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 2 — AGENDA
+══════════════════════════════════════════ -->
+<div class="slide" id="slide-2">
+  <div class="top-rule blue"></div>
+  <div class="slide-body">
+    <div class="label">Agenda</div>
+    <h2 class="slide-title">今日話すこと</h2>
+    <p class="slide-sub">3つのテーマ構成</p>
+    <div class="grid-3">
+      <div class="card card-top-navy">
+        <div class="card-num">01</div>
+        <div class="card-title">AIプロジェクトの現場</div>
+        <div class="card-body">実際に何が起きているのか。2つのエピソードから語る、AIプロジェクトの実態。</div>
+      </div>
+      <div class="card card-top-blue">
+        <div class="card-num">02</div>
+        <div class="card-title">リアルな課題 4 選</div>
+        <div class="card-body">効率化・API接続・認証・コスト。PoCの先にある本当の壁。</div>
+      </div>
+      <div class="card card-top-teal">
+        <div class="card-num">03</div>
+        <div class="card-title">PMの役割と未来</div>
+        <div class="card-body">AI時代に求められる翻訳力。オーケストレーターとしてのPM像。</div>
+      </div>
+    </div>
+    <div class="hl-box" style="margin-top:32px">
+      <div class="hl-label">Key Message</div>
+      <div class="hl-text">「AIは手段。案件を動かすのは、人への信頼だ。」</div>
+    </div>
+  </div>
+  <div class="slide-footer"><span class="footer-brand">BayCurrent Consulting</span><span class="footer-num">02 / 20</span></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 3 — PROFILE
+══════════════════════════════════════════ -->
+<div class="slide" id="slide-3">
+  <div class="top-rule"></div>
+  <div class="slide-body">
+    <div class="label">Profile</div>
+    <h2 class="slide-title">自己紹介</h2>
+    <p class="slide-sub">AIプロジェクト最前線に立つPM</p>
+    <div class="grid-2" style="align-items:start">
+      <div>
+        <ul class="arrow-list">
+          <li>ベイカレントコンサルティング所属</li>
+          <li>大手企業向けAI導入プロジェクトのPM</li>
+          <li>数百億規模の投資判断を支援</li>
+          <li>エンジニア → コンサルタントへのキャリア転換</li>
+          <li>AIエージェント技術の実務応用が専門</li>
+        </ul>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card card-top-navy">
+          <div class="card-title" style="font-size:10px;letter-spacing:2px;color:var(--blue);margin-bottom:12px">FOCUS AREA</div>
+          <div class="badge-row">
+            <span class="badge filled">AIエージェント</span>
+            <span class="badge filled">要件定義</span>
+            <span class="badge filled">論点整理</span>
+            <span class="badge">マルチモーダル</span>
+            <span class="badge">システム連携</span>
+            <span class="badge">経営承認支援</span>
+          </div>
+        </div>
+        <div class="info-box">
+          <div class="ib-label">現在地</div>
+          <div class="ib-text">AIプロジェクトの最前線で、<br>日本企業の競争力を作る仕事をしています。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span class="footer-brand">BayCurrent Consulting</span><span class="footer-num">03 / 20</span></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 4 — 転換点
+══════════════════════════════════════════ -->
+<div class="slide" id="slide-4">
+  <div class="top-rule blue"></div>
+  <div class="slide-body">
+    <div class="label">Context</div>
+    <h2 class="slide-title">AI時代の転換点</h2>
+    <p class="slide-sub">今、何が変わっているのか</p>
+    <div class="vs-wrap" style="margin-top:8px">
+      <div class="card card-top-navy" style="padding:28px">
+        <div style="font-size:11px;letter-spacing:2px;color:var(--gray-400);font-weight:600;margin-bottom:14px">BEFORE AI</div>
+        <ul class="vs-list navy">
+          <li>意思決定に数年</li>
+          <li>PoC → 本番まで数年</li>
+          <li>専門家が情報を独占</li>
+          <li>会議で考え、翌週に共有</li>
+        </ul>
+      </div>
+      <div class="vs-mid">→</div>
+      <div class="card card-top-blue" style="padding:28px">
+        <div style="font-size:11px;letter-spacing:2px;color:var(--blue);font-weight:600;margin-bottom:14px">AFTER AI</div>
+        <ul class="vs-list blue">
+          <li>3ヶ月で数百億を承認</li>
+          <li>会議中に試作→その場で議論</li>
+          <li>誰でも高度な分析にアクセス</li>
+          <li>可視化速度が意思決定速度を決める</li>
+        </ul>
+      </div>
+    </div>
+    <div class="big-msg">スピードのゲームが根本から変わった。</div>
+  </div>
+  <div class="slide-footer"><span class="footer-brand">BayCurrent Consulting</span><span class="footer-num">04 / 20</span></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 5 — プロジェクト全体像
+══════════════════════════════════════════ -->
+<div class="slide" id="slide-5">
+  <div class="top-rule"></div>
+  <div class="slide-body">
+    <div class="label">Overview</div>
+    <h2 class="slide-title">プロジェクト全体像</h2>
+    <p class="slide-sub">数百億規模の全社 AI 基盤構築</p>
+    <div class="stat-row" style="margin-bottom:32px">
+      <div>
+        <div class="stat-num">3<span class="stat-unit" style="font-size:24px">ヶ月</span></div>
+        <div class="stat-lbl">経営承認まで</div>
+      </div>
+      <div style="width:1px;background:var(--gray-200)"></div>
+      <div>
+        <div class="stat-num" style="font-size:36px">数百億<span class="stat-unit" style="font-size:16px">円</span></div>
+        <div class="stat-lbl">投資規模</div>
+      </div>
+      <div style="width:1px;background:var(--gray-200)"></div>
+      <div>
+        <div class="stat-num">数万<span class="stat-unit" style="font-size:20px">人</span></div>
+        <div class="stat-lbl">全社員展開規模</div>
+      </div>
+    </div>
+    <div class="grid-3">
+      <div class="card card-top-navy">
+        <div class="card-title">スコープ</div>
+        <div class="card-body">全社員へのAIエージェント展開。業務プロセスの根本的な再設計。</div>
+      </div>
+      <div class="card card-top-blue">
+        <div class="card-title">ステークホルダー</div>
+        <div class="card-body">CxO・事業部門・IT部門・ベンダー複数社。多部署・多ベンダー横断の調整。</div>
+      </div>
+      <div class="card card-top-teal">
+        <div class="card-title">PM の役割</div>
+        <div class="card-body">論点整理 → 要件定義 → 経営承認。抽象要求を実行可能な提案へ変換。</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span class="footer-brand">BayCurrent Consulting</span><span class="footer-num">05 / 20</span></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 6 — AIエージェントとは
+══════════════════════════════════════════ -->
+<div class="slide" id="slide-6">
+  <div class="top-rule blue"></div>
+  <div class="slide-body">
+    <div class="label">Technology</div>
+    <h2 class="slide-title">AIエージェントとは何か</h2>
+    <p class="slide-sub">ツールとエージェントの本質的な違い</p>
+    <div class="vs-wrap" style="margin-top:8px">
+      <div class="card" style="padding:28px">
+        <div style="font-size:10px;letter-spacing:2px;color:var(--gray-400);font-weight:600;margin-bottom:14px">従来のAIツール</div>
+        <ul class="vs-list navy">
+          <li>指示されたことだけを実行</li>
+          <li>単一タスク完結型</li>
+          <li>人間が次の操作を指定</li>
+          <li>静的なワークフロー</li>
+        </ul>
+      </div>
+      <div class="vs-mid" style="font-size:20px;color:var(--navy)">→</div>
+      <div class="card card-top-blue" style="padding:28px">
+        <div style="font-size:10px;letter-spacing:2px;color:var(--blue);font-weight:600;margin-bottom:14px">AIエージェント</div>
+        <ul class="vs-list blue">
+          <li>自律的に判断・行動</li>
+          <li>複数タスクを連鎖実行</li>
+          <li>ツールやAPIを自ら呼び出す</li>
+          <li>動的に計画を修正</li>
+        </ul>
+      </div>
+    </div>
+    <div class="warn-box" style="margin-top:24px">
+      <div class="wb-label">重要な含意</div>
+      <div class="wb-text">「AIエージェントは人の代わりに動く」——だから認証・権限・コスト設計が極めて難しくなる</div>
+    </div>
+  </div>
+  <div class="slide-footer"><span class="footer-brand">BayCurrent Consulting</span><span class="footer-num">06 / 20</span></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 7 — 技術スタック
+══════════════════════════════════════════ -->
+<div class="slide" id="slide-7">
+  <div class="top-rule"></div>
+  <div class="slide-body">
+    <div class="label">Technology</div>
+    <h2 class="slide-title">技術スタック概観</h2>
+    <p class="slide-sub">プロジェクトで扱った主要技術領域</p>
+    <div class="grid-4" style="margin-top:8px">
+      <div class="card card-top-navy">
+        <div class="card-title">LLM 基盤</div>
+        <div class="card-body">GPT-4o / Claude / Gemini。マルチモーダル対応。長文コンテキスト処理。</div>
+      </div>
+      <div class="card card-top-blue">
+        <div class="card-title">エージェント</div>
+        <div class="card-body">マルチエージェント連携。オーケストレーター設計。Tool Use / Function Calling。</div>
+      </div>
+      <div class="card card-top-teal">
+        <div class="card-title">認証・認可</div>
+        <div class="card-body">OAuth / OBO / Entra ID。エージェント用権限設計。業務システム認証統合。</div>
+      </div>
+      <div class="card" style="border-top:3px solid #7e57c2">
+        <div class="card-title">インフラ</div>
+        <div class="card-body">OA網 / 業務網 / 閉域網。RAG検索基盤。ベクトルDB。APIゲートウェイ。</div>
+      </div>
+    </div>
+    <div class="big-msg" style="margin-top:28px">技術を語れる PM が、顧客の信頼を作る。</div>
+  </div>
+  <div class="slide-footer"><span class="footer-brand">BayCurrent Consulting</span><span class="footer-num">07 / 20</span></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 8 — マルチモーダル
+══════════════════════════════════════════ -->
+<div class="slide" id="slide-8">
+  <div class="top-rule blue"></div>
+  <div class="slide-body">
+    <div class="label">Technology</div>
+    <h2 class="slide-title">マルチモーダル化の波</h2>
+    <p class="slide-sub">AIがリッチになるほど、課題も増える</p>
+    <div class="grid-2" style="align-items:start;margin-top:8px">
+      <div>
+        <ul class="arrow-list">
+          <li>音声認識・音声合成</li>
+          <li>画像解析・動画解析</li>
+          <li>文書理解（PDF・Excel・図面）</li>
+          <li>コード生成・実行</li>
+          <li>マルチエージェント並列処理</li>
+        </ul>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card card-top-red">
+          <div class="card-title" style="color:var(--red)">コスト爆発の構造</div>
+          <div class="card-body" style="font-size:15px;line-height:1.8;margin-top:8px">
+            数万人 × 毎日 × 音声 + 画像 + 長文 + 複数 Agent<br>
+            <strong style="color:var(--red)">→ LLM利用料は青天井になりうる</strong>
+          </div>
+        </div>
+        <div class="info-box">
+          <div class="ib-label">戦略的洞察</div>
+          <div class="ib-text">コストは将来下がる。<br>「安くなる前にノウハウを蓄積できるか」が競争力を決める。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span class="footer-brand">BayCurrent Consulting</span><span class="footer-num">08 / 20</span></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 9 — ステークホルダー
+══════════════════════════════════════════ -->
+<div class="slide" id="slide-9">
+  <div class="top-rule"></div>
+  <div class="slide-body">
+    <div class="label">PM Insight</div>
+    <h2 class="slide-title">ステークホルダーの複雑性</h2>
+    <p class="slide-sub">大企業のAI導入が難しい本当の理由</p>
+    <div class="grid-2" style="align-items:start;margin-top:8px">
+      <div class="card" style="padding:28px">
+        <div class="card-title" style="margin-bottom:14px">関係者の多様性</div>
+        <ul class="arrow-list">
+          <li style="font-size:14px">経営層（CxO） — ROI・競争力</li>
+          <li style="font-size:14px">事業部門 — 業務効率・使いやすさ</li>
+          <li style="font-size:14px">IT 部門 — セキュリティ・保守性</li>
+          <li style="font-size:14px">ベンダー複数社 — 技術・スケジュール</li>
+          <li style="font-size:14px">法務・コンプライアンス — リスク管理</li>
+        </ul>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card card-top-red" style="padding:24px">
+          <div class="card-title" style="color:var(--red)">全員が違うことを求める</div>
+          <div class="card-body" style="margin-top:10px;line-height:1.9">
+            現場 → 「楽になりたい」<br>
+            経営 → 「競争力を作りたい」<br>
+            IT → 「壊れてほしくない」<br>
+            ベンダー → 「早く決めてほしい」
+          </div>
+        </div>
+        <div class="big-msg" style="margin-top:0">PM は全員の言語を翻訳する。</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span class="footer-brand">BayCurrent Consulting</span><span class="footer-num">09 / 20</span></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 10 — SECTION BREAK
+══════════════════════════════════════════ -->
+<div class="slide" id="slide-10">
+  <div class="top-rule blue"></div>
+  <div class="section-slide-inner">
+    <div class="label">Part 2 — Episodes</div>
+    <h2 class="slide-title" style="font-size:48px">現場で起きた<br>2つのエピソード</h2>
+    <div class="divider"></div>
+    <div class="badge-row" style="margin-top:8px">
+      <span class="badge filled">Episode 1｜バイブコーディング</span>
+      <span class="badge filled">Episode 2｜論点整理</span>
+    </div>
+  </div>
+  <div class="slide-footer"><span class="footer-brand">BayCurrent Consulting</span><span class="footer-num">10 / 20</span></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 11 — Episode1
+══════════════════════════════════════════ -->
+<div class="slide" id="slide-11">
+  <div class="top-rule"></div>
+  <div class="slide-body">
+    <div class="label">Episode 1</div>
+    <h2 class="slide-title">バイブコーディング</h2>
+    <p class="slide-sub">作りながら考える時代</p>
+    <div class="grid-2" style="align-items:start;margin-top:8px">
+      <div>
+        <ul class="arrow-list">
+          <li>会議中に試作プロトタイプを生成</li>
+          <li>AIで即時可視化して顧客に提示</li>
+          <li>その場で顧客と一緒に議論・修正</li>
+          <li>コンセプトを高速で具体化</li>
+          <li>次の会議を待たずに意思決定が進む</li>
+        </ul>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="card" style="padding:20px">
+          <div class="card-title" style="color:var(--gray-600);font-weight:500">Before</div>
+          <div class="card-body">資料を数週間かけて作成 → 会議でFB → また数週間</div>
+        </div>
+        <div style="text-align:center;font-size:20px;color:var(--blue)">↓</div>
+        <div class="card card-top-blue" style="padding:20px">
+          <div class="card-title" style="color:var(--blue)">After</div>
+          <div class="card-body">会議中にコードを書いて動かして見せる → その場で承認</div>
+        </div>
+      </div>
+    </div>
+    <div class="big-msg">コミュニケーションそのものが変わった。</div>
+  </div>
+  <div class="slide-footer"><span class="footer-brand">BayCurrent Consulting</span><span class="footer-num">11 / 20</span></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 12 — Episode2
+══════════════════════════════════════════ -->
+<div class="slide" id="slide-12">
+  <div class="top-rule blue"></div>
+  <div class="slide-body">
+    <div class="label">Episode 2</div>
+    <h2 class="slide-title">論点整理：PM は翻訳業</h2>
+    <p class="slide-sub">AI時代ほど、"問い" の質が差になる</p>
+    <div class="flow" style="margin-top:8px;margin-bottom:28px">
+      <div class="flow-item"><div class="f-step">Step 1</div><div class="f-text">抽象要求を受ける</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item"><div class="f-step">Step 2</div><div class="f-text">論点化する</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item"><div class="f-step">Step 3</div><div class="f-text">構造化する</div></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-item"><div class="f-step">Step 4</div><div class="f-text">実行可能化する</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="card" style="padding:22px">
+        <div class="card-title" style="color:var(--gray-600)">顧客の最初の言葉</div>
+        <div class="card-body" style="font-size:16px;font-weight:600;color:var(--gray-800);margin-top:8px">「DXで競争力を上げたい」</div>
+        <div class="card-body" style="margin-top:8px">← 抽象度が高く、実行できない</div>
+      </div>
+      <div class="card card-top-blue" style="padding:22px">
+        <div class="card-title" style="color:var(--blue)">翻訳後の形</div>
+        <div class="card-body" style="font-size:15px;font-weight:600;color:var(--navy);margin-top:8px">「Month2に要件定義完了、<br>Month3に経営承認」</div>
+        <div class="card-body" style="margin-top:8px">← 実行可能で、意思決定できる</div>
+      </div>
+    </div>
+    <div class="big-msg">AIが正確になるほど、問いの質が差になる。</div>
+  </div>
+  <div class="slide-footer"><span class="footer-brand">BayCurrent Consulting</span><span class="footer-num">12 / 20</span></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 13 — 課題①
+══════════════════════════════════════════ -->
+<div class="slide" id="slide-13">
+  <div class="top-rule"></div>
+  <div class="slide-body">
+    <div class="label">Challenge 01</div>
+    <h2 class="slide-title">効率化 vs P/L</h2>
+    <p class="slide-sub">現場と経営の言語は違う</p>
+    <div class="vs-wrap" style="margin-top:8px">
+      <div class="card" style="padding:28px">
+        <div style="font-size:10px;letter-spacing:2px;color:var(--gray-400);font-weight:600;margin-bottom:14px">現場が求めること</div>
+        <ul class="vs-list navy">
+          <li>仕事が楽になる</li>
+          <li>ミスが減る</li>
+          <li>時間が短縮できる</li>
+          <li>使いやすいツール</li>
+        </ul>
+      </div>
+      <div class="vs-mid" style="font-size:18px;color:var(--gray-400);font-weight:700">≠</div>
+      <div class="card card-top-navy" style="padding:28px">
+        <div style="font-size:10px;letter-spacing:2px;color:var(--navy);font-weight:600;margin-bottom:14px">経営が求めること</div>
+        <ul class="vs-list navy">
+          <li>競争力の向上</li>
+          <li>ROI・投資対効果</li>
+          <li>売上・利益への貢献</li>
+          <li>コスト構造の変革</li>
+        </ul>
+      </div>
+    </div>
+    <div class="warn-box" style="margin-top:24px">
+      <div class="wb-label">落とし穴</div>
+      <div class="wb-text">「楽になります」だけでは数百億は動かない。経営言語への翻訳が必須。</div>
+    </div>
+  </div>
+  <div class="slide-footer"><span class="footer-brand">BayCurrent Consulting</span><span class="footer-num">13 / 20</span></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 14 — 課題②
+══════════════════════════════════════════ -->
+<div class="slide" id="slide-14">
+  <div class="top-rule blue"></div>
+  <div class="slide-body">
+    <div class="label">Challenge 02</div>
+    <h2 class="slide-title">API・システム接続の壁</h2>
+    <p class="slide-sub">PoC は簡単。本当に難しいのは業務システム接続</p>
+    <div class="grid-2" style="align-items:start;margin-top:8px">
+      <div class="card card-top-blue" style="padding:24px">
+        <div class="card-title" style="color:var(--blue)">理想（デモ環境）</div>
+        <div class="card-body" style="margin-top:10px">AIエージェントがAPIを叩いて自律的に業務を完結する。クリーンで美しい。</div>
+      </div>
+      <div class="card card-top-red" style="padding:24px">
+        <div class="card-title" style="color:var(--red)">現実（本番環境）</div>
+        <ul class="arrow-list" style="margin-top:10px">
+          <li style="font-size:14px">APIが存在しない業務システム</li>
+          <li style="font-size:14px">接続方式が統一されていない</li>
+          <li style="font-size:14px">システム理解者が社内に限定的</li>
+          <li style="font-size:14px">レガシーシステムの複雑な依存関係</li>
+        </ul>
+      </div>
+    </div>
+    <div class="big-msg">PoC で動いても、本番に繋がらない。</div>
+  </div>
+  <div class="slide-footer"><span class="footer-brand">BayCurrent Consulting</span><span class="footer-num">14 / 20</span></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 15 — 課題③
+══════════════════════════════════════════ -->
+<div class="slide" id="slide-15">
+  <div class="top-rule"></div>
+  <div class="slide-body">
+    <div class="label">Challenge 03</div>
+    <h2 class="slide-title">ネットワーク・認証設計</h2>
+    <p class="slide-sub">AIエージェントは「人の代わりに動く」</p>
+    <div class="grid-3" style="margin-top:8px">
+      <div class="card card-top-navy">
+        <div class="card-title">ネットワーク分離</div>
+        <div class="card-body">OA網 / 業務網 / 閉域網。エージェントがどのネットワークで動くかで設計が変わる。</div>
+      </div>
+      <div class="card card-top-blue">
+        <div class="card-title">認証プロトコル</div>
+        <div class="card-body">OAuth / On-Behalf-Of / Microsoft Entra ID。エージェント固有の権限委任が必要。</div>
+      </div>
+      <div class="card card-top-teal">
+        <div class="card-title">権限設計</div>
+        <div class="card-body">誰の権限で動くか。最小権限の原則。監査ログ。人間と同等の説明責任。</div>
+      </div>
+    </div>
+    <div class="warn-box" style="margin-top:24px">
+      <div class="wb-label">根本的な難しさ</div>
+      <div class="wb-text">人間は「自分でログインする」。エージェントは「権限を委任される」。この違いが設計を複雑にする。</div>
+    </div>
+  </div>
+  <div class="slide-footer"><span class="footer-brand">BayCurrent Consulting</span><span class="footer-num">15 / 20</span></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 16 — 課題④
+══════════════════════════════════════════ -->
+<div class="slide" id="slide-16">
+  <div class="top-rule blue"></div>
+  <div class="slide-body">
+    <div class="label">Challenge 04</div>
+    <h2 class="slide-title">LLM コストの現実</h2>
+    <p class="slide-sub">マルチモーダル化がコストを押し上げる</p>
+    <div class="grid-2" style="align-items:start;margin-top:8px">
+      <div class="card">
+        <div class="card-title" style="margin-bottom:12px">コスト要因の積み上げ</div>
+        <ul class="arrow-list">
+          <li style="font-size:14px">推論コスト（トークン単価）</li>
+          <li style="font-size:14px">RAG 検索コスト</li>
+          <li style="font-size:14px">音声認識・合成</li>
+          <li style="font-size:14px">画像・動画解析</li>
+          <li style="font-size:14px">マルチエージェント並列実行</li>
+        </ul>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card card-top-red" style="padding:22px">
+          <div class="card-title" style="color:var(--red)">全社展開の試算</div>
+          <div class="card-body" style="font-size:15px;margin-top:10px;line-height:1.9">
+            数万人 × 毎日 ×<br>音声 + 画像 + 長文 + 複数 Agent<br>
+            <strong style="color:var(--red);font-size:17px">= 青天井のLLM利用料</strong>
+          </div>
+        </div>
+        <div class="info-box">
+          <div class="ib-label">戦略的視点</div>
+          <div class="ib-text">コストは将来的に下がる。<br>今蓄積するノウハウこそが資産。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-footer"><span class="footer-brand">BayCurrent Consulting</span><span class="footer-num">16 / 20</span></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 17 — PM役割
+══════════════════════════════════════════ -->
+<div class="slide" id="slide-17">
+  <div class="top-rule"></div>
+  <div class="slide-body">
+    <div class="label">PM Role</div>
+    <h2 class="slide-title">AI時代の PM・要件定義</h2>
+    <p class="slide-sub">PM の重要性はむしろ増している</p>
+    <div class="grid-2" style="align-items:start;margin-top:8px">
+      <div class="card card-top-navy">
+        <div class="card-title" style="margin-bottom:14px">AI時代の要件定義の特徴</div>
+        <ul class="arrow-list">
+          <li style="font-size:14px">正解が最初から存在しない</li>
+          <li style="font-size:14px">前提が途中で変化する</li>
+          <li style="font-size:14px">抽象的な要求から始まる</li>
+          <li style="font-size:14px">AI前提での業務プロセス再設計</li>
+        </ul>
+      </div>
+      <div class="card card-top-blue">
+        <div class="card-title" style="color:var(--blue);margin-bottom:14px">AI時代の PM 推進の特徴</div>
+        <ul class="arrow-list">
+          <li style="font-size:14px">多部署横断の調整・合意形成</li>
+          <li style="font-size:14px">多ベンダー連携と品質管理</li>
+          <li style="font-size:14px">論点整理と意思決定支援</li>
+          <li style="font-size:14px">経営言語への翻訳</li>
+        </ul>
+      </div>
+    </div>
+    <div class="big-msg">PM は人・技術・組織をつなぐオーケストレーター</div>
+  </div>
+  <div class="slide-footer"><span class="footer-brand">BayCurrent Consulting</span><span class="footer-num">17 / 20</span></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 18 — クライマックス
+══════════════════════════════════════════ -->
+<div class="slide" id="slide-18">
+  <div class="top-rule blue"></div>
+  <div class="slide-body">
+    <div class="label">Climax</div>
+    <h2 class="slide-title">3ヶ月で動かした数百億</h2>
+    <p class="slide-sub">普通なら数年かかる意思決定を、AI時代のスピードで前進させた</p>
+    <div class="timeline" style="margin-top:16px">
+      <div class="tl-item">
+        <div class="tl-dot">1</div>
+        <div class="tl-line"></div>
+        <div class="tl-month">Month 1</div>
+        <div class="tl-text">論点整理・体制構築</div>
+        <div class="tl-sub">ステークホルダー特定、課題の構造化、プロジェクト骨格設計</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">2</div>
+        <div class="tl-line"></div>
+        <div class="tl-month">Month 2</div>
+        <div class="tl-text">要件定義・数百億見積り</div>
+        <div class="tl-sub">機能・非機能要件定義、コスト試算、リスク評価</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot" style="background:var(--blue)">3</div>
+        <div class="tl-month" style="color:var(--blue)">Month 3</div>
+        <div class="tl-text">経営承認</div>
+        <div class="tl-sub">取締役会プレゼン、投資承認、全社展開フェーズへ移行</div>
+      </div>
+    </div>
+    <div class="hl-box" style="margin-top:28px">
+      <div class="hl-label">Why So Fast?</div>
+      <div class="hl-text">バイブコーディングによる高速可視化 ＋ 論点整理力 ＋ 顧客との信頼関係</div>
+    </div>
+  </div>
+  <div class="slide-footer"><span class="footer-brand">BayCurrent Consulting</span><span class="footer-num">18 / 20</span></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 19 — なぜできたのか
+══════════════════════════════════════════ -->
+<div class="slide" id="slide-19">
+  <div class="top-rule"></div>
+  <div class="slide-body">
+    <div class="label">Reflection</div>
+    <h2 class="slide-title">なぜ3ヶ月でできたのか</h2>
+    <p class="slide-sub">成功の 3 要因</p>
+    <div class="grid-3" style="margin-top:16px">
+      <div class="card card-top-navy" style="text-align:center;padding:32px 24px">
+        <div style="font-size:40px;font-weight:900;color:var(--navy);margin-bottom:12px">速</div>
+        <div class="card-title" style="font-size:15px">AIによる高速試作</div>
+        <div class="card-body" style="margin-top:8px">バイブコーディングで会議中に可視化。顧客が「見て触れる」提案を即座に作れた。</div>
+      </div>
+      <div class="card card-top-blue" style="text-align:center;padding:32px 24px">
+        <div style="font-size:40px;font-weight:900;color:var(--blue);margin-bottom:12px">構</div>
+        <div class="card-title" style="font-size:15px">論点整理・構造化力</div>
+        <div class="card-body" style="margin-top:8px">抽象的な要求を「誰が・何を・いつまでに・なぜ」に分解し、意思決定できる形にした。</div>
+      </div>
+      <div class="card card-top-teal" style="text-align:center;padding:32px 24px">
+        <div style="font-size:40px;font-weight:900;color:var(--teal);margin-bottom:12px">信</div>
+        <div class="card-title" style="font-size:15px">顧客との信頼関係</div>
+        <div class="card-body" style="margin-top:8px">「一緒に作る文化」を早期に醸成。顧客が主体者になることで意思決定が加速した。</div>
+      </div>
+    </div>
+    <div class="big-msg">最後に案件を動かすのは、人への信頼。</div>
+  </div>
+  <div class="slide-footer"><span class="footer-brand">BayCurrent Consulting</span><span class="footer-num">19 / 20</span></div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     SLIDE 20 — CLOSING
+══════════════════════════════════════════ -->
+<div class="slide" id="slide-20">
+  <div class="top-rule blue"></div>
+  <div class="closing-inner">
+    <div class="label" style="color:var(--blue)">Closing</div>
+    <h2 style="font-size:40px;font-weight:900;color:var(--navy);line-height:1.2;margin-bottom:24px">
+      なぜ、AIプロジェクトの<br>PM を目指すのか？
+    </h2>
+    <div class="divider" style="margin:0 auto 28px"></div>
+    <div class="hl-box" style="max-width:640px;width:100%;text-align:left;margin-bottom:32px">
+      <div class="hl-label">My Answer</div>
+      <div class="hl-text" style="font-size:22px">世界で戦えるように、<br>日本企業を応援したいから。</div>
+    </div>
+    <p style="font-size:17px;color:var(--gray-600);line-height:1.9;max-width:620px;font-weight:400">
+      AIエージェントは、まだ完成された世界ではありません。<br>
+      だからこそ、面白い。<br><br>
+      今、世界中で試行錯誤が続いている。<br>
+      私は今、その最前線にいる感覚があります。<br><br>
+      <strong style="color:var(--navy)">だから、この仕事をしています。</strong>
+    </p>
+  </div>
+  <div class="slide-footer"><span class="footer-brand">BayCurrent Consulting</span><span class="footer-num">20 / 20</span></div>
+</div>
+
+<!-- Navigation -->
+<div class="nav">
+  <button class="nav-btn" onclick="go(-1)">‹</button>
+  <div class="nav-count" id="cnt">1 / 20</div>
+  <button class="nav-btn" onclick="go(1)">›</button>
+</div>
+<div class="kbd-hint">← → キーで移動</div>
+
+<script>
+  let cur = 1, total = 20;
+  function go(d) {
+    let n = cur + d;
+    if (n < 1 || n > total) return;
+    document.getElementById('slide-' + cur).classList.remove('active');
+    cur = n;
+    document.getElementById('slide-' + cur).classList.add('active');
+    document.getElementById('cnt').textContent = cur + ' / ' + total;
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ') go(1);
+    if (e.key === 'ArrowLeft') go(-1);
+  });
+</script>
+</body>
+</html>
